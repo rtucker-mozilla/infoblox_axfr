@@ -1,0 +1,5 @@
+[InfoBlox]
+Hostname = https://infoblox.domain.com
+Username = username@domain.com
+Password = SecurePasswordHere
+Zone = Public
