@@ -9,6 +9,8 @@ class Build(object):
     def __init__(self, cmd_output, allowed_types = None):
         if allowed_types is None:
             self.allowed_types = default_allowed_types
+        else:
+            self.allowed_types = allowed_types
         self.lines = cmd_output.split('\n')
 
     def run(self):
