@@ -1,18 +1,26 @@
 #!/usr/bin/python
-import subprocess
 import sys
+import argparse
 from common import Common
 from config import Config
 from api import API
 from cmd import CMD
 from build import Build
 
-server = "10.48.75.120"
-
-
-
 
 def main():
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('-d', action="store", type=str, dest="view")
+    parser.add_argument('-s', action="store", type=str, dest="server")
+    args = parser.parse_args()
+
+    if not args.view:
+        print "DNS View required"
+        sys.exit(2)
+
+    if not args.server:
+        print "server required"
+        sys.exit(2)
     config_obj = Config()
     o_config = config_obj.get_config()
     try:
@@ -25,9 +33,8 @@ def main():
         print message
         sys.exit(2)
     all_records = []
-    view = 'MDC1%20Private'
 
-    api = API(o_config, view)
+    api = API(o_config, args.view)
 
     all_zones = api.build_all_zones()
     all_zones = all_zones[:2]
@@ -36,7 +43,7 @@ def main():
         if is_reverse:
             zone = Common.reverse_name(zone)
 
-        cmd = CMD(zone, server)
+        cmd = CMD(zone, args.server)
         output, errors = cmd.run()
         build = Build(output)
         all_records = build.run()
