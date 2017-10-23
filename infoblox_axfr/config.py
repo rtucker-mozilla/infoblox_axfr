@@ -4,17 +4,20 @@ import os
 
 class Config(object):
 
-    @classmethod
-    def get_config(self, config_path=None):
+    def __init__(self, config_path=None):
+        self.config_path = config_path
+
+    def get_config(self):
         config = ConfigParser.RawConfigParser()
-        if config_path is None:
+        if self.config_path is None:
             config_path = 'infoblox_axfr.cfg'
+        else:
+            config_path = self.config_path
         paths = [
             os.path.join(os.path.dirname(__file__), config_path),
             os.path.join('/usr/local/bin', config_path),
             os.path.join(os.path.dirname(__file__), '../' + config_path),
         ]
-        print paths
         config_found = False
         for path in paths:
             if os.path.exists(path):
@@ -30,7 +33,6 @@ class Config(object):
         config.read(config_path)
         return config
 
-    @classmethod
     def config_valid(self, config):
         try:
             config.get('InfoBlox', 'HostName')

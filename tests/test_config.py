@@ -2,13 +2,21 @@ import context #  NOQA
 import hashlib
 import time
 import os
+import pytest
 import ConfigParser
 from infoblox_axfr.config import Config
 
+@pytest.yield_fixture(scope='function')
+def config():
+    c = Config
+    yield c
+    c = None
 
 def test_get_config_not_exists():
-
-    assert Config.get_config('/tmp/asdfasdfasdfasdfsdaf') is None
+    config = Config('/tmp/asdfkjasdfkjasdfasdfasdfasdfsadf')
+    ret = config.get_config()
+    assert ret is None
+    config = None
 
 
 def remove_config(filepath):
@@ -29,9 +37,10 @@ def test_get_config():
     filename_hash = hashlib.sha1(millis).hexdigest()
     filename = "{0}.cfg".format(filename_hash)
     remove_config(filename)
-    assert Config.get_config(filename) is None
+    c = Config(filename)
+    assert c.get_config() is None
     write_test_config_file(filename)
-    config = Config.get_config(filename)
+    config = c.get_config()
     assert config.get("InfoBlox", "HostName") == "test.domain.com"
     remove_config(filename)
 
@@ -39,7 +48,8 @@ def test_get_config():
 def test_get_config_missing_infoblox_hostname():
     config = ConfigParser.RawConfigParser()
     config.add_section('InfoBlox')
-    config, error = Config.config_valid(config)
+    c = Config('/tmp/blah')
+    config, error = c.config_valid(config)
     assert config is False
     assert error == "No option 'HostName' in section: 'InfoBlox'"
 
@@ -49,7 +59,8 @@ def test_get_config_missing_infoblox_username():
     config.add_section('InfoBlox')
     config.set('InfoBlox', 'HostName', 'test.domain.com')
     config.set('InfoBlox', 'Password', 'testpassword')
-    config, error = Config.config_valid(config)
+    c = Config('/tmp/blah')
+    config, error = c.config_valid(config)
     assert config is False
     assert error == "No option 'UserName' in section: 'InfoBlox'"
 
@@ -59,6 +70,7 @@ def test_get_config_missing_infoblox_password():
     config.add_section('InfoBlox')
     config.set('InfoBlox', 'HostName', 'test.domain.com')
     config.set('InfoBlox', 'UserName', 'username')
-    config, error = Config.config_valid(config)
+    c = Config('/tmp/blah')
+    config, error = c.config_valid(config)
     assert config is False
     assert error == "No option 'Password' in section: 'InfoBlox'"

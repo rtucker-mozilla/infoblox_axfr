@@ -2,12 +2,13 @@
 import requests
 import subprocess
 import sys
-from common import is_reverse_zone_name, reverse_name
+from common import Common
 from config import Config
-o_config = Config.get_config()
+config_obj = Config()
+o_config = config_obj.get_config()
 
 try:
-    is_config_valid, message = Config.config_valid(o_config)
+    is_config_valid, message = config_obj.config_valid(o_config)
 except AttributeError:
     is_config_valid = False
     message = "No Configuration File Found"
@@ -45,9 +46,9 @@ def main():
     all_zones = all_zones[:2]
     print all_zones
     for zone in all_zones:
-        is_reverse = is_reverse_zone_name(zone)
+        is_reverse = Common.is_reverse_zone_name(zone)
         if is_reverse:
-            zone = reverse_name(zone)
+            zone = Common.reverse_name(zone)
         dig_list = [
             "dig",
             "AXFR",
