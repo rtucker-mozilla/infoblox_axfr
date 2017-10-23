@@ -4,7 +4,7 @@ import argparse
 from common import Common
 from config import Config
 from api import API
-from cmd import CMD
+from dns_cmd import CMD
 from build import Build
 
 
@@ -12,6 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('-d', action="store", type=str, dest="view")
     parser.add_argument('-s', action="store", type=str, dest="server")
+    parser.add_argument('-l', action="store", type=int, dest="zone_limit")
     args = parser.parse_args()
 
     if not args.view:
@@ -37,16 +38,18 @@ def main():
     api = API(o_config, args.view)
 
     all_zones = api.build_all_zones()
-    all_zones = all_zones[:2]
+    if args.zone_limit:
+        all_zones = all_zones[:args.zone_limit]
+    print all_zones
     for zone in all_zones:
         is_reverse = Common.is_reverse_zone_name(zone)
         if is_reverse:
             zone = Common.reverse_name(zone)
 
-        cmd = CMD(zone, args.server)
-        output, errors = cmd.run()
+        d_cmd = CMD(zone, args.server)
+        output, errors = d_cmd.run()
         build = Build(output)
-        all_records = build.run()
+        all_records += build.run()
 
     all_records = sorted(all_records)
     for r in all_records:
