@@ -3,11 +3,11 @@ import requests
 import subprocess
 import sys
 from common import is_reverse_zone_name, reverse_name
-from config import get_config, config_valid
-o_config = get_config()
+from config import Config
+o_config = Config.get_config()
 
 try:
-    is_config_valid, message = config_valid(o_config)
+    is_config_valid, message = Config.config_valid(o_config)
 except AttributeError:
     is_config_valid = False
     message = "No Configuration File Found"
