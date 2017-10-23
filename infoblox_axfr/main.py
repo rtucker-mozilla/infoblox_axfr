@@ -1,79 +1,45 @@
 #!/usr/bin/python
-import requests
 import subprocess
 import sys
 from common import Common
 from config import Config
-config_obj = Config()
-o_config = config_obj.get_config()
+from api import API
+from cmd import CMD
+from build import Build
 
-try:
-    is_config_valid, message = config_obj.config_valid(o_config)
-except AttributeError:
-    is_config_valid = False
-    message = "No Configuration File Found"
-
-if is_config_valid is False:
-    print message
-    sys.exit(2)
-
-
-final = "{0}/wapi/v2.7/zone_auth?view={1}".format(
-    o_config.get('InfoBlox', 'HostName'),
-    o_config.get('InfoBlox', 'Zone'),
-)
-username = o_config.get('InfoBlox', 'UserName')
-password = o_config.get('InfoBlox', 'Password')
 server = "10.48.75.120"
 
-allowed_types = [
-    "A",
-    "SRV",
-    "CNAME",
-    "PTR",
-]
 
-def build_all_zones():
-    all_zones = []
-    resp = requests.get(final, auth=(username, password), verify=False)
-    if resp.status_code == 200:
-        for data in resp.json():
-            name = data[u"fqdn"]
-            all_zones.append(name)
-    return all_zones
 
 
 def main():
-    all_records = []
+    config_obj = Config()
+    o_config = config_obj.get_config()
+    try:
+        is_config_valid, message = config_obj.config_valid(o_config)
+    except AttributeError:
+        is_config_valid = False
+        message = "No Configuration File Found"
 
-    all_zones = build_all_zones()
+    if is_config_valid is False:
+        print message
+        sys.exit(2)
+    all_records = []
+    view = 'MDC1%20Private'
+
+    api = API(o_config, view)
+
+    all_zones = api.build_all_zones()
     all_zones = all_zones[:2]
-    print all_zones
     for zone in all_zones:
         is_reverse = Common.is_reverse_zone_name(zone)
         if is_reverse:
             zone = Common.reverse_name(zone)
-        dig_list = [
-            "dig",
-            "AXFR",
-            zone,
-            "@" + server
-        ]
-        p = subprocess.Popen(
-            dig_list,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        output, errors = p.communicate()
-        print output
-        for line in output.split("\n"):
-            r_split = line.strip().split()
-            try:
-                r_type = r_split[3]
-            except IndexError:
-                continue
-            if r_type in allowed_types:
-                all_records.append('\t'.join(r_split))
+
+        cmd = CMD(zone, server)
+        output, errors = cmd.run()
+        build = Build(output)
+        all_records = build.run()
 
     all_records = sorted(all_records)
     for r in all_records:
