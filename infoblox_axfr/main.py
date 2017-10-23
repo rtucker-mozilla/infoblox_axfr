@@ -33,16 +33,20 @@ allowed_types = [
     "PTR",
 ]
 
-
-def main():
-    resp = requests.get(final, auth=(username, password), verify=False)
+def build_all_zones():
     all_zones = []
-    all_records = []
+    resp = requests.get(final, auth=(username, password), verify=False)
     if resp.status_code == 200:
         for data in resp.json():
             name = data[u"fqdn"]
             all_zones.append(name)
+    return all_zones
 
+
+def main():
+    all_records = []
+
+    all_zones = build_all_zones()
     all_zones = all_zones[:2]
     print all_zones
     for zone in all_zones:
