@@ -1,11 +1,5 @@
 import context #  NOQA
-import hashlib
-import time
-import os
-import pytest
-import ConfigParser
 from infoblox_axfr.build import Build
-
 
 
 def test_type_matching_ptr():
@@ -18,6 +12,7 @@ def test_type_matching_ptr():
     b = Build(lines, allowed_types)
     records = b.run()
     assert len(records) == 3
+
 
 def test_type_matching_forward_default_types():
     lines = """host1.domain.com.    60    IN    A    127.0.0.1\n
