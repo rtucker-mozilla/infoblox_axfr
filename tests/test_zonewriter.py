@@ -41,6 +41,13 @@ def test_increment_serial(z):
     serial = z.get_serial(date_obj=t_date)
     assert z.increment_serial(serial) == '2017123101'
 
+def test_increment_serial_proper_date(z):
+    serial = z.get_serial(date_obj=t_date)
+    today_str = datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')
+    today_serial ='{}00'.format(str(today_str))
+    today_serial_incremented ='{}01'.format(str(today_str))
+    assert z.increment_serial(today_serial) == today_serial_incremented
+
 def test_read_zonefile():
     write_zonefile()
     z = ZoneWriter(zone_name, lines, path)
@@ -64,5 +71,7 @@ def test_increment_serial_from_zonefile():
     serial = z._serial_from_zonefile(zone)
     date_obj = datetime.datetime.now()
     today_str = datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')
-    assert z.increment_serial(serial) == '{}00'.format(str(today_str))
+    # 2017102500
+    today_serial ='{}00'.format(str(today_str))
+    assert z.increment_serial(serial) == today_serial
     remove_zonefile()
