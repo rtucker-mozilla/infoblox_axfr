@@ -6,6 +6,7 @@ from config import Config
 from api import API
 from dns_cmd import CMD
 from build import Build
+from zonewriter import ZoneWriter
 
 
 def main():
@@ -33,14 +34,13 @@ def main():
     if is_config_valid is False:
         print message
         sys.exit(2)
+
     all_records = []
+    all_zones = api.build_all_zones()
 
     api = API(o_config, args.view)
-
-    all_zones = api.build_all_zones()
     if args.zone_limit:
         all_zones = all_zones[:args.zone_limit]
-    print all_zones
     for zone in all_zones:
         is_reverse = Common.is_reverse_zone_name(zone)
         if is_reverse:
