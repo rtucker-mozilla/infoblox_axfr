@@ -75,3 +75,11 @@ def test_increment_serial_from_zonefile():
     today_serial ='{}00'.format(str(today_str))
     assert z.increment_serial(serial) == today_serial
     remove_zonefile()
+
+def test_get_all_records_from_zone():
+    write_zonefile()
+    z = ZoneWriter(zone_name, lines, path)
+    zone = z._read_zonefile(origin_path, origin)
+    all_records = z._get_all_records_from_zone(zone)
+    assert len(all_records) == 8
+    remove_zonefile()

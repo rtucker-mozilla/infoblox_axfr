@@ -1,6 +1,16 @@
 import os
 import datetime
 import dns.zone
+all_record_item_types = [
+    1, #  A
+    2, #  NS
+    5, #  CNAME
+    15, #  MX
+    16, #  TXT
+]
+bad_record_item_types = [
+    6 #seems to be SOA
+]
 
 
 class ZoneWriter(object):
@@ -23,16 +33,27 @@ class ZoneWriter(object):
         zone = dns.zone.from_file(path, zone_name)
         return zone
 
+    def _get_all_records_from_zone(self, zone):
+        return_items = []
+        for name, node in zone.nodes.items():
+            for rdata in node.rdatasets:
+                for item in rdata.items:
+
+                    if item.rdtype not in bad_record_item_types:
+                        return_items.append(item)
+        return return_items
+
     def _serial_from_zonefile(self, zone):
         serial = None
         for name, node in zone.nodes.items():
             for rdata in node.rdatasets:
                 for item in rdata.items:
-                    try:
-                        serial = int(item.serial)
-                        return serial
-                    except:
-                        continue
+                    if item.rdtype == 6:
+                        try:
+                            serial = int(item.serial)
+                            return serial
+                        except:
+                            continue
         return serial
 
     def get_serial(self, date_obj=None):
