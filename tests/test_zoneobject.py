@@ -4,7 +4,7 @@ import pytest
 import os
 import time
 from shutil import copyfile
-from infoblox_axfr.zonewriter import ZoneWriter
+from infoblox_axfr.zoneobject import ZoneObject
 
 t_date = datetime.datetime.strptime("2017-12-31", "%Y-%m-%d")
 origin = 'domain.com'
@@ -15,7 +15,7 @@ origin_path = os.path.join(path, origin)
 
 @pytest.yield_fixture
 def z():
-    z = ZoneWriter(zone_name, lines, path)
+    z = ZoneObject(zone_name, lines, path)
     yield z
     z = None
 
@@ -50,7 +50,7 @@ def test_increment_serial_proper_date(z):
 
 def test_read_zonefile():
     write_zonefile()
-    z = ZoneWriter(zone_name, lines, path)
+    z = ZoneObject(zone_name, lines, path)
     assert z.file_exists is True
     zone = z._read_zonefile(origin_path, origin)
     assert zone is not None
@@ -58,7 +58,7 @@ def test_read_zonefile():
 
 def test_read_serial_zonefile():
     write_zonefile()
-    z = ZoneWriter(zone_name, lines, path)
+    z = ZoneObject(zone_name, lines, path)
     zone = z._read_zonefile(origin_path, origin)
     serial = z._serial_from_zonefile(zone)
     assert serial == 2017072400
@@ -66,7 +66,7 @@ def test_read_serial_zonefile():
 
 def test_increment_serial_from_zonefile():
     write_zonefile()
-    z = ZoneWriter(zone_name, lines, path)
+    z = ZoneObject(zone_name, lines, path)
     zone = z._read_zonefile(origin_path, origin)
     serial = z._serial_from_zonefile(zone)
     date_obj = datetime.datetime.now()
@@ -78,8 +78,8 @@ def test_increment_serial_from_zonefile():
 
 def test_get_all_records_from_zone():
     write_zonefile()
-    z = ZoneWriter(zone_name, lines, path)
+    z = ZoneObject(zone_name, lines, path)
     zone = z._read_zonefile(origin_path, origin)
     all_records = z._get_all_records_from_zone(zone)
-    assert len(all_records) == 8
+    assert len(all_records) == 10
     remove_zonefile()

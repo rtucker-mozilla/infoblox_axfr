@@ -1,10 +1,11 @@
 import requests
 class API(object):
-    def __init__(self, o_config, zone):
+    def __init__(self, o_config, zone, origin=None):
         self.hostname = o_config.get('InfoBlox', 'HostName')
         self.username = o_config.get('InfoBlox', 'UserName')
         self.password = o_config.get('InfoBlox', 'Password')
         self.zone = zone
+        self.origin = None
         self.verify = False
 
     def get_url(self):
@@ -12,6 +13,11 @@ class API(object):
             self.hostname,
             self.zone,
         )
+        if self.origin is not None:
+            final = "{0}&fqdn={1}".format(
+                final,
+                self.origin
+            )
         return final
 
     def build_all_zones(self):
