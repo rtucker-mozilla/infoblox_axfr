@@ -1,3 +1,5 @@
+import os
+
 
 class Common(object):
     @classmethod
@@ -17,3 +19,15 @@ class Common(object):
         final_name = ".".join(f_name_split[1:])
         final_name = "{}.in-addr.arpa".format(final_name)
         return final_name
+
+    @classmethod
+    def get_local_zones(self, zone_path):
+        return os.listdir(zone_path)
+
+    @classmethod
+    def get_zones_to_remove(self, l_all_local_zonefiles, l_all_zone_names):
+        to_remove = []
+        for l_f in l_all_local_zonefiles:
+            if l_f not in l_all_zone_names:
+                to_remove.append(l_f)
+        return to_remove
