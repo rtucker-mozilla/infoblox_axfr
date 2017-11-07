@@ -9,6 +9,7 @@ from build import Build
 from zoneobject import ZoneObject
 from dns import zone as dnszone, query
 from dns.exception import FormError
+from checkzone import CheckZone
 import dns
 import os
 
@@ -110,9 +111,15 @@ def main():
     if args.delete_unknown_zone:
         for zone_file in zones_to_remove:
             zone_file_full_path = os.path.join(args.zone_path, zone_file)
-            import pdb; pdb.set_trace()
             os.unlink(zone_file_full_path)
 
+    for zone in all_local_zonefiles:
+        zone_file_full_path = os.path.join(args.zone_path, zone)
+        cz = CheckZone(zone_file_full_path, zone)
+        returncode, msg = cz.run()
+        if returncode != 0:
+            print msg
+            sys.exit(2)
     if named_reload:
         import pdb; pdb.set_trace()
         # decide how to handle this
