@@ -10,6 +10,7 @@ from zoneobject import ZoneObject
 from dns import zone as dnszone, query
 from dns.exception import FormError
 from checkzone import CheckZone
+from reloadnamed import ReloadNamed
 import dns
 import os
 
@@ -23,6 +24,7 @@ def main():
     parser.add_argument('-o', action="store", type=str, dest="origin")
     parser.add_argument('-p', action="store", type=str, dest="zone_path")
     parser.add_argument('-x', action="store_true", dest="delete_unknown_zone")
+    parser.add_argument('-e', action="store", dest="named_restart_command")
     args = parser.parse_args()
 
     if not args.view:
@@ -36,6 +38,11 @@ def main():
     if not args.zone_path:
         print "zone_path required"
         sys.exit(2)
+
+    named_restart_command = "service named restart"
+    if args.named_restart_command:
+        named_restart_command = args.named_restart_command
+
 
     named_reload = False
     named_failures = None
@@ -121,9 +128,8 @@ def main():
             print msg
             sys.exit(2)
     if named_reload:
-        import pdb; pdb.set_trace()
-        # decide how to handle this
-        # should also check using named-checkzone
+        r = ReloadNamed(named_restart_command)
+        r.run()
 
 if __name__ == '__main__':
     main()
