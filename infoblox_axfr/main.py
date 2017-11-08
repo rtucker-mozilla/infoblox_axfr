@@ -23,6 +23,7 @@ def main():
     parser.add_argument('-l', action="store", type=int, dest="zone_limit")
     parser.add_argument('-o', action="store", type=str, dest="origin")
     parser.add_argument('-p', action="store", type=str, dest="zone_path")
+    parser.add_argument('-w', action="store", type=str, dest="override_path")
     parser.add_argument('-x', action="store_true", dest="delete_unknown_zone")
     parser.add_argument('-e', action="store", dest="named_restart_command")
     args = parser.parse_args()
@@ -42,6 +43,10 @@ def main():
     named_restart_command = "service named restart"
     if args.named_restart_command:
         named_restart_command = args.named_restart_command
+
+    override_path = None
+    if args.override_path:
+        override_path = args.override_path
 
 
     named_reload = False
@@ -119,6 +124,19 @@ def main():
         for zone_file in zones_to_remove:
             zone_file_full_path = os.path.join(args.zone_path, zone_file)
             os.unlink(zone_file_full_path)
+
+    if override_path is not None:
+        for zone in os.listdir(override_path):
+            zone_file_full_path = os.path.join(args.zone_path, zone)
+            override_full_path = os.path.join(override_path, zone)
+            fh = open(zone_file_full_path, 'r')
+            current_content = fh.readlines()
+            fh.close()
+            fh = open(zone_file_full_path, 'a')
+            for line in open(override_full_path, 'r').readlines():
+                if not line in current_content:
+                    fh.write(line)
+            fh.close()
 
     for zone in all_local_zonefiles:
         zone_file_full_path = os.path.join(args.zone_path, zone)
