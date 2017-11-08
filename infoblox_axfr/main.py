@@ -54,11 +54,17 @@ def main():
     reload_zones = []
     config_obj = Config()
     o_config = config_obj.get_config()
+    stop_update_file_path = o_config.get('Global', 'StopUpdate')
+
     try:
         is_config_valid, message = config_obj.config_valid(o_config)
     except AttributeError:
         is_config_valid = False
         message = "No Configuration File Found"
+
+    if os.path.exists(stop_update_file_path):
+        print "Stop Update file Exists"
+        sys.exit(2)
 
     if is_config_valid is False:
         print message
