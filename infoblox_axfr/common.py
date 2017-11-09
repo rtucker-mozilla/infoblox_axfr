@@ -39,4 +39,9 @@ class Common(object):
         else:
             open(fname, 'a').close()
 
+    @classmethod
+    def write_stop_update(self, fname, message):
+        fh = open(fname, 'w')
+        fh.write(message)
+        fh.close()
 
