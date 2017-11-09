@@ -40,6 +40,7 @@ class Config(object):
             config.get('InfoBlox', 'Password')
             config.get('InfoBlox', 'Zone')
             config.get('Global', 'StopUpdate')
+            config.get('Global', 'StateFile')
         except ConfigParser.NoOptionError, e:
             return False, str(e)
         return config, ''

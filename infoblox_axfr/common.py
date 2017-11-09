@@ -31,3 +31,12 @@ class Common(object):
             if l_f not in l_all_zone_names:
                 to_remove.append(l_f)
         return to_remove
+
+    @classmethod
+    def touch(self, fname):
+        if os.path.exists(fname):
+            os.utime(fname, None)
+        else:
+            open(fname, 'a').close()
+
+

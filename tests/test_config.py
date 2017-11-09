@@ -50,6 +50,7 @@ def test_get_config_missing_infoblox_hostname():
     config.add_section('InfoBlox')
     config.add_section('Global')
     config.set('Global', 'StopUpdate', '/tmp/stop.update')
+    config.set('Global', 'StateFile', '/tmp/statefile')
     c = Config('/tmp/blah')
     config, error = c.config_valid(config)
     assert config is False
@@ -63,6 +64,7 @@ def test_get_config_missing_infoblox_username():
     config.set('InfoBlox', 'Password', 'testpassword')
     config.add_section('Global')
     config.set('Global', 'StopUpdate', '/tmp/stop.update')
+    config.set('Global', 'StateFile', '/tmp/statefile')
     c = Config('/tmp/blah')
     config, error = c.config_valid(config)
     assert config is False
@@ -76,6 +78,7 @@ def test_get_config_missing_infoblox_password():
     config.set('InfoBlox', 'UserName', 'username')
     config.add_section('Global')
     config.set('Global', 'StopUpdate', '/tmp/stop.update')
+    config.set('Global', 'StateFile', '/tmp/statefile')
     c = Config('/tmp/blah')
     config, error = c.config_valid(config)
     assert config is False
@@ -89,6 +92,7 @@ def test_get_config_missing_zone():
     config.set('InfoBlox', 'Password', 'password')
     config.add_section('Global')
     config.set('Global', 'StopUpdate', '/tmp/stop.update')
+    config.set('Global', 'StateFile', '/tmp/statefile')
     c = Config('/tmp/blah')
     config, error = c.config_valid(config)
     assert config is False
@@ -102,7 +106,22 @@ def test_get_config_missing_stop_update_path():
     config.set('InfoBlox', 'Password', 'testpassword')
     config.set('InfoBlox', 'Zone', 'domain.com')
     config.add_section('Global')
+    config.set('Global', 'StateFile', '/tmp/statefile')
     c = Config('/tmp/blah')
     config, error = c.config_valid(config)
     assert config is False
     assert error == "No option 'StopUpdate' in section: 'Global'"
+
+def test_get_config_missing_statefile_path():
+    config = ConfigParser.RawConfigParser()
+    config.add_section('InfoBlox')
+    config.set('InfoBlox', 'HostName', 'test.domain.com')
+    config.set('InfoBlox', 'UserName', 'username')
+    config.set('InfoBlox', 'Password', 'testpassword')
+    config.set('InfoBlox', 'Zone', 'domain.com')
+    config.add_section('Global')
+    config.set('Global', 'StopUpdate', '/tmp/stop.update')
+    c = Config('/tmp/blah')
+    config, error = c.config_valid(config)
+    assert config is False
+    assert error == "No option 'StateFile' in section: 'Global'"
