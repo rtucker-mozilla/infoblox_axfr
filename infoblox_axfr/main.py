@@ -55,6 +55,7 @@ def main():
     config_obj = Config()
     o_config = config_obj.get_config()
     stop_update_file_path = o_config.get('Global', 'StopUpdate')
+    statefile_path = o_config.get('Global', 'StateFile')
 
     try:
         is_config_valid, message = config_obj.config_valid(o_config)
@@ -154,6 +155,8 @@ def main():
     if named_reload:
         r = ReloadNamed(named_restart_command)
         r.run()
+
+    Common.touch(statefile_path)
 
 if __name__ == '__main__':
     main()
