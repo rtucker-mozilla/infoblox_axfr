@@ -28,16 +28,41 @@ def main():
     parser.add_argument('-e', action="store", dest="named_restart_command")
     args = parser.parse_args()
 
+    config_obj = Config()
+    o_config = config_obj.get_config()
+    stop_update_file_path = o_config.get('Global', 'StopUpdate')
+    statefile_path = o_config.get('Global', 'StateFile')
+
+    try:
+        is_config_valid, config_message = config_obj.config_valid(o_config)
+    except AttributeError:
+        is_config_valid = False
+        config_message = "No Configuration File Found"
+
+    if os.path.exists(stop_update_file_path):
+        print "Stop Update file Exists"
+        sys.exit(2)
+
+    if is_config_valid is False:
+        print config_message
+        sys.exit(2)
+
     if not args.view:
-        print "DNS View required"
+        msg = "DNS View command line argument required"
+        Common.write_stop_update(stop_update_file_path, msg)
+        print msg
         sys.exit(2)
 
     if not args.server:
-        print "server required"
+        msg = "server command line argument required"
+        Common.write_stop_update(stop_update_file_path, msg)
+        print msg
         sys.exit(2)
 
     if not args.zone_path:
-        print "zone_path required"
+        msg = "zone_path command line argument required"
+        Common.write_stop_update(stop_update_file_path, msg)
+        print msg
         sys.exit(2)
 
     named_restart_command = "service named restart"
@@ -52,24 +77,7 @@ def main():
     named_reload = False
     named_failures = None
     reload_zones = []
-    config_obj = Config()
-    o_config = config_obj.get_config()
-    stop_update_file_path = o_config.get('Global', 'StopUpdate')
-    statefile_path = o_config.get('Global', 'StateFile')
 
-    try:
-        is_config_valid, message = config_obj.config_valid(o_config)
-    except AttributeError:
-        is_config_valid = False
-        message = "No Configuration File Found"
-
-    if os.path.exists(stop_update_file_path):
-        print "Stop Update file Exists"
-        sys.exit(2)
-
-    if is_config_valid is False:
-        print message
-        sys.exit(2)
 
     api = API(o_config, args.view, origin=args.origin)
 
@@ -151,7 +159,10 @@ def main():
         returncode, msg = cz.run()
         if returncode != 0:
             print msg
+            Common.write_stop_update(stop_update_file_path, msg)
+            print msg
             sys.exit(2)
+
     if named_reload:
         r = ReloadNamed(named_restart_command)
         r.run()
